@@ -14,7 +14,7 @@ def home():
 
 
 @app.route("/api/v1/<station>/<date>")
-def about(station, date):
+def stationDate(station, date):
     filepath = "data-small/TG_STAID" + str(station).zfill(6) + ".txt"
     df = pd.read_csv(filepath, skiprows=20, parse_dates=["    DATE"])
     temperature = df.loc[df['    DATE'] == date]['   TG'].squeeze() / 10
@@ -22,6 +22,25 @@ def about(station, date):
     return {"station": station,
             "date": date,
             "temperature": temperature}
+
+
+@app.route("/api/v1/<station>")
+def printS(station):
+    filepath = "data-small/TG_STAID" + str(station).zfill(6) + ".txt"
+    st = pd.read_csv(filepath, skiprows=20, parse_dates=["    DATE"])
+    results = st.to_dict(orient="records")
+    res = st
+    return res.to_html()
+
+
+@app.route("/api/v1/yearly/<station>/<year>")
+def yearClass(station, year):
+    filename = "data-small/TG_STAID" + str(station).zfill(6) + ".txt"
+    yr = pd.read_csv(filename, skiprows=20)
+    yr["    DATE"] = (yr["    DATE"]).astype(str)
+    results = yr[yr["    DATE"].str.startswith(str(year))].to_dict(orient="records")
+
+    return results
 
 
 if __name__ == "__main__":
